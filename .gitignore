@@ -5,7 +5,60 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### STS ###
+### IntelliJ IDEA ###
+.idea/*
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# Keep shared settings
+!.idea/codeStyles
+!.idea/runConfigurations
+
+# Plugin-specific
+.idea/**/shelf
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/httpRequests
+.idea/**/sonarlint/
+.idea/**/dataSources/
+.idea/**/contentModel.xml
+.idea/**/caches/build_file_checksums.ser
+
+### Java ###
+*.class
+*.log
+*.ctxt
+.mtj.tmp/
+hs_err_pid*
+replay_pid*
+*.hprof
+
+# Archives
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+### Gradle ###
+.gradle/
+gradle-app.setting
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+.gradletasknamecache
+
+### STS / Eclipse ###
 .apt_generated
 .classpath
 .factorypath
@@ -17,21 +70,34 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
 ### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+**/nbproject/private/
+**/nbproject/Makefile-*.mk
+**/nbproject/Package-*.bash
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+### macOS ###
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+*.icloud
 
 ### VS Code ###
 .vscode/
