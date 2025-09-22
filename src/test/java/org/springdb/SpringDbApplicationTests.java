@@ -1,4 +1,4 @@
-package org.example.springdb;
+package org.springdb;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
