@@ -4,15 +4,24 @@ package org.springdb.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.springdb.connection.DBConnectionUtil;
 import org.springdb.domain.Member;
+import org.springframework.jdbc.support.JdbcUtils;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.NoSuchElementException;
 
 /**
- * JDBC - DriverManager 사용
+ * JDBC - ConnectionParam
  */
 @Slf4j
-public class MemberRepositoryV0 {
+public class MemberRepositoryV2 {
+
+    private final DataSource dataSource; //Hikari도 dataSource를 사용하기 때문에 가능
+
+    public MemberRepositoryV2(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
 
     public Member save(Member member) throws SQLException {
         String sql = "insert into member(member_id, money) values (?, ?)";
@@ -32,6 +41,7 @@ public class MemberRepositoryV0 {
         }finally{
             close(connection,preparedStatement,null); //항상 호출의 보장
         }
+
     }
 
     public Member findById(String memberId) throws SQLException {
@@ -62,6 +72,36 @@ public class MemberRepositoryV0 {
         }
     }
 
+    public Member findById(Connection con, String memberId) throws SQLException {
+        String sql = "select * from member where member_id = ?";
+
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try{
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, memberId);
+
+            rs = pstmt.executeQuery();
+            if(rs.next()){ //next 호출시, 첫번째 데이터가 있는지 없는지 확인하는 것
+                Member member = new Member();
+                member.setMemberId(rs.getString("member_id"));
+                member.setMoney(rs.getInt("money"));
+                return member;
+            }else {
+                throw new NoSuchElementException("Member not found memberID = "+memberId);
+            }
+        }catch(SQLException e){
+            log.error("db error", e);
+            throw e;
+        }finally{
+            //connection은 여기서 닫지 않는다.
+
+            JdbcUtils.closeResultSet(rs);
+            JdbcUtils.closeStatement(pstmt);
+        }
+    }
+
     public void update(String memberId, int money)throws SQLException {
         String sql = "update member set money =? where member_id = ?";
         Connection con= null;
@@ -79,6 +119,25 @@ public class MemberRepositoryV0 {
             throw e;
         }finally{
             close(con,pstmt,null);
+        }
+    }
+
+    public void update(Connection con, String memberId, int money)throws SQLException {
+        String sql = "update member set money =? where member_id = ?";
+
+        PreparedStatement pstmt = null;
+
+        try{
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, money);
+            pstmt.setString(2, memberId);
+            int resultSize = pstmt.executeUpdate();
+            log.info("resultSize = {}",resultSize);
+        }catch(SQLException e){
+            log.error("db error", e);
+            throw e;
+        }finally{
+            JdbcUtils.closeStatement(pstmt);
         }
     }
 
@@ -102,32 +161,15 @@ public class MemberRepositoryV0 {
     }
 
     private void close(Connection con, Statement stmt, ResultSet rs){
-        if(rs != null){
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                log.error(e.getMessage(), e);
-            }
-        }
-        if(stmt != null){
-            try {
-                stmt.close(); // SQLException이 터진다고 하더라도, 그게 아래서 catch로 잡아버리기에 영향 주지 않는다
-            } catch (SQLException e) {
-                log.error("close stmt failed", e);
-            }
-        }
-        if(con != null){
-            try {
-                con.close();
-            } catch (SQLException e) {
-                log.error("close connection failed", e);
-            }
-        }
+
+        JdbcUtils.closeResultSet(rs);
+        JdbcUtils.closeStatement(stmt);
+        JdbcUtils.closeConnection(con); //계속 반환을 해주는거지.. 지속적인 반환
     }
 
-    private static Connection getConnection() {
+    private Connection getConnection() throws SQLException {
+        Connection con = dataSource.getConnection();
+        log.info("get Connection ={}, class ={}",con,con.getClass());
         return DBConnectionUtil.getConnection();
     }
-
-
 }
